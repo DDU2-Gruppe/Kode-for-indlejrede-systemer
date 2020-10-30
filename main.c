@@ -22,7 +22,8 @@
 
 //andre defines
 #define TAL_PORT PORTD 
-#define DIS_PORT PORTC 
+#define MACH_PORT PORTC 
+#define DIS_PORT PORTC
 
 
 //DISPLAY
@@ -32,108 +33,104 @@
 
 
 #define SW_PIN PINC 
-#define SWITCH_B PC0 
+#define Toggle0 PC0 
 #define SWITCH_A PC1
+#define SWITCH_1 PC5
 
+volatile uint8_t j = 0;
+volatile uint8_t k = 0;
+volatile uint8_t l = 1;
+volatile uint8_t a = 0;
 
+ISR(TIMER2_OVF_vect) {
+	/*if (bit_is_set(PORTB, PB0)) {
+		CLEARBIT(PORTB, PB0);
+	}
+	else {
+		SETBIT(PORTB, PB0);
+	}*/
+	if (a >= 28){
+	if(k == 5 && j == 9 && l == 9){
+	} else {
+		if(l==9){
+			l = 0;
+			if(k==5){
+				k = 0;
+				if(j==9) {
+					j = 0;
+				} else {
+					++j;
+				}
+				} else {
+				++k;
+				}
+			} else {
+			++l;
+			}
+		}
+	a = 0;
+	}
+	a++;
+}
+
+void timer_init() {
+	TCCR2B = (1 << CS22) | (1 << CS21) | (1 << CS20);
+	TIMSK2 = (1 << TOIE2);
+}
 
 void init(){
     DDRD = 0xFF; //alle bits på portd = output
     DDRC = 0x1C; //alle bits på portc = inputs
+	PORTB = 0x00;
+	PORTD = 0x00;
+	timer_init();
+	sei();
 }
- 
+
+
+
 
                                                                
 int main(void){   
 	init();
 
+	uint8_t talArr[] = { 0x3F, 0x6, 0x5B, 0x4F, 0x66, 0x6D, 0xFD, 0x7, 0x7F, 0xEF };
+	uint8_t tim = 2;
 	uint8_t i = 0;
- 	uint8_t j = 0; // 100
-    uint8_t k = 0; // 10
-    uint8_t l = 1; // 1
-    uint8_t del = 0;
-    uint8_t tim = 2;
-    uint8_t talArr[] = {0x3F, 0x6, 0x5B, 0x4F, 0x66, 0x6D, 0xFD, 0x7, 0x7F, 0xEF};
-	uint8_t frem = 1;
-	uint8_t slut = 0;
-	//uint8_t nV = 0;
-	//uint8_t pV = 0;
-	//uint8_t reg = 0;
- 
+
     while(1){
-        
+		for (i = 0; i < 3; ++i) {
 
-		
-        for(del = 0; del < 50; ++del){
-        
-            for(i = 0; i < 4; ++i){
-            
- 
-                if (i == 0){
-                    SETBIT(DIS_PORT, DISPLAY_1);
-                    TAL_PORT = ~talArr[j];
-                    _delay_ms(tim);
-                    CLEARBIT(DIS_PORT, DISPLAY_1);
-                }
- 
-                if (i == 1){
-                    SETBIT(DIS_PORT, DISPLAY_2);
-                    TAL_PORT = ~talArr[k];
-                    _delay_ms(tim);
-                    CLEARBIT(DIS_PORT, DISPLAY_2);
-                }
- 
-                if (i == 2){
-                    SETBIT(DIS_PORT, DISPLAY_3);
-                    TAL_PORT = ~talArr[l];
-                    _delay_ms(tim);
-                    CLEARBIT(DIS_PORT, DISPLAY_3);
-                }
- 
- 
-            }
- 
- 
-        }
-    
-      	
-		// tæller frem
-		if (frem == 1 && slut == 0) {
-			if(k == 9 && j == 9 && l == 9){
-				slut = 1;
-			} else {
-				if(l==9){
-					l = 0;
-					if(k==9){
-						k = 0;
-						if(j==9) {
-							j = 0;
-						} else {
-							++j;
-						}
-					} else {
-						++k;
-					}
-				} else {
-					++l;
-				}
+
+			if (i == 0) {
+				SETBIT(DIS_PORT, DISPLAY_1);
+				TAL_PORT = ~talArr[j];
+				_delay_ms(tim);
+				CLEARBIT(DIS_PORT, DISPLAY_1);
 			}
+
+			if (i == 1) {
+				SETBIT(DIS_PORT, DISPLAY_2);
+				TAL_PORT = ~talArr[k];
+				_delay_ms(tim);
+				CLEARBIT(DIS_PORT, DISPLAY_2);
+			}
+
+			if (i == 2) {
+				SETBIT(DIS_PORT, DISPLAY_3);
+				TAL_PORT = ~talArr[l];
+				_delay_ms(tim);
+				CLEARBIT(DIS_PORT, DISPLAY_3);
+			}
+
+
 		}
-
-	 
-
- 
 		
-
 	}
 
 return 0; 
 
 }
-
-
-
-
 
 
 
